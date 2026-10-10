@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0B0812">
+<title>IdolTalk — 和爱豆练英语</title>
+<meta name="description" content="K-pop 爱豆英语陪练：132 位爱豆，聊天陪练 + 语音朗读 + 词卡学习。">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/app.css">
+<!-- PWA：Service Worker 注册（仅 https / localhost 生效；file:// 直开时静默跳过，不影响运行） -->
+<script>
+(function () {
+  var isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || isLocal)) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function (e) {
+        console.warn('[sw] 注册失败（不影响使用）', e);
+      });
+    });
+  }
+})();
+</script>
+</head>
+<body>
+
+<!-- ============================================================
+     PHONE — 390×844（桌面为带框预览；≤520px 真机全屏，见 app.css）
+     ============================================================ -->
+<div class="phone" id="phone" data-nav="home">
+  <div class="blob b1" aria-hidden="true"></div>
+  <div class="blob b2" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+  <div class="island" aria-hidden="true"></div>
+
+  <div class="stack">
+
+    <!-- 状态栏（桌面预览装饰；真机隐藏，让位系统状态栏） -->
+    <div class="statusbar" aria-hidden="true">
+      <span id="sb-time">21:47</span>
+      <div class="sb-icons">
+        <svg width="15" height="10" viewBox="0 0 15 10"><rect class="fill" x="0" y="6" width="2.4" height="4" rx=".8"/><rect class="fill" x="4" y="4" width="2.4" height="6" rx=".8"/><rect class="fill" x="8" y="2" width="2.4" height="8" rx=".8"/><rect class="fill" x="12" y="0" width="2.4" height="10" rx=".8"/></svg>
+        <svg width="14" height="10" viewBox="0 0 14 10"><path class="stroke" stroke-width="1.3" stroke-linecap="round" d="M1.4 3.4a8.2 8.2 0 0 1 11.2 0M3.6 5.7a5 5 0 0 1 6.8 0"/><circle class="fill" cx="7" cy="8.4" r="1.2"/></svg>
+        <svg width="22" height="11" viewBox="0 0 22 11"><rect class="stroke" stroke-width="1" x=".5" y=".5" width="18" height="10" rx="3"/><rect class="fill" x="2.4" y="2.4" width="12" height="6.2" rx="1.6"/><rect class="fill" x="20" y="3.4" width="1.6" height="4.2" rx=".8" opacity=".5"/></svg>
+      </div>
+    </div>
+
+    <!-- 屏幕栈：4 个屏幕容器（各屏幕模块在 mount(el) 中替换占位脚手架） -->
+    <main class="screens">
+
+      <section class="screen on" id="screen-home" aria-label="首页">
+        <div class="scaffold">
+          <div class="grad-rule" style="width:120px"></div>
+          <p class="sc-name grad-text">Home</p>
+          <p class="sc-note">屏幕模块待挂载 · <b>js/screens/home.js</b></p>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-convos" aria-label="消息列表">
+        <div class="scaffold">
+          <div class="grad-rule" style="width:120px"></div>
+          <p class="sc-name grad-text">Conversations</p>
+          <p class="sc-note">屏幕模块待挂载 · <b>js/screens/convos.js</b></p>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-chat" aria-label="聊天">
+        <div class="scaffold">
+          <div class="grad-rule" style="width:120px"></div>
+          <p class="sc-name grad-text">Conversation</p>
+          <p class="sc-note">屏幕模块待挂载 · <b>js/screens/chat.js</b></p>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-cards" aria-label="词卡">
+        <div class="scaffold">
+          <div class="grad-rule" style="width:120px"></div>
+          <p class="sc-name grad-text">Word Cards</p>
+          <p class="sc-note">屏幕模块待挂载 · <b>js/screens/cards.js</b></p>
+        </div>
+      </section>
+
+      <section class="screen" id="screen-me" aria-label="我的">
+        <div class="scaffold">
+          <div class="grad-rule" style="width:120px"></div>
+          <p class="sc-name grad-text">The Journal</p>
+          <p class="sc-note">屏幕模块待挂载 · <b>js/screens/me.js</b></p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 底部导航：4 tab + 中央凸起麦克风 FAB（口语练习核心动作） -->
+    <nav class="tabbar" aria-label="主导航">
+      <button class="tab on" type="button" data-nav="home" aria-label="首页">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M4 10.6 12 4l8 6.6V20h-5.6v-5.6h-4.8V20H4z"/></svg>
+        <span>首页</span>
+      </button>
+      <button class="tab" type="button" data-nav="convos" aria-label="聊天">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M4 7a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3h-7l-4.2 3.4V17H7a3 3 0 0 1-3-3z"/></svg>
+        <span>聊天</span>
+      </button>
+      <div class="mic">
+        <button class="mic-btn" type="button" id="micFab" aria-label="口语练习">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21"/></svg>
+        </button>
+      </div>
+      <button class="tab" type="button" data-nav="cards" aria-label="词卡">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="13" height="16" rx="2.5"/><path d="M8.5 3h9A2.5 2.5 0 0 1 20 5.5v13"/><path d="M7.5 10h6M7.5 13.5h4"/></svg>
+        <span>词卡</span>
+      </button>
+      <button class="tab" type="button" data-nav="me" aria-label="我的">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8.4" r="3.6"/><path d="M4.8 20a7.2 7.2 0 0 1 14.4 0"/></svg>
+        <span>我的</span>
+      </button>
+      <div class="home-bar" aria-hidden="true"></div>
+    </nav>
+
+  </div>
+
+  <!-- 全局反馈层：App.emit('toast', '文案') 即可弹出 -->
+  <div id="toast-layer" aria-live="polite"></div>
+</div>
+
+<!-- ============================================================
+     模块加载顺序（冻结）：data → reply → voice → chat → core → screens → boot
+     注意：全部为【经典脚本】——Chromium 在 file:// 协议下按 CORS 拦截
+     <script type="module" src>，而本应用以 file:// 直接打开运行。
+     模块化方式 = 每文件一个 IIFE，挂载到 window.App 命名空间（合并式，
+     任何模块都不得整体重写 window.App，只能附加属性）。
+     ============================================================ -->
+<script src="js/data.js"></script>
+<script src="js/reply.js"></script>
+<script src="js/voice.js"></script>
+<script src="js/chat.js"></script>
+<script src="js/core.js"></script>
+<script src="js/screens/home.js"></script>
+<script src="js/screens/convos.js"></script>
+<script src="js/screens/chat.js"></script>
+<script src="js/screens/cards.js"></script>
+<script src="js/screens/me.js"></script>
+<script src="js/boot.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+Thumbs.db
+node_modules/
+*.log
+# 素材（版权原因不入库）
+app/photos/
+tts/refs/
+*.wav
+*.mp3.bak

@@ -1,0 +1,10 @@
+# Idol Talk TTS 服务依赖
+fastapi
+uvicorn[standard]
+requests
+numpy
+scipy
+opencv-python
+pillow
+faster-whisper
+imageio-ffmpeg

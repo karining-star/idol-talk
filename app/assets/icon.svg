@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F2A0DC"/>
+      <stop offset=".52" stop-color="#CBA2F2"/>
+      <stop offset="1" stop-color="#A78BFA"/>
+    </linearGradient>
+    <radialGradient id="wash" cx=".5" cy="-.1" r=".9">
+      <stop offset="0" stop-color="#A78BFA" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#0B0812" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#0B0812"/>
+  <rect width="512" height="512" rx="112" fill="url(#wash)"/>
+  <rect x="24" y="24" width="464" height="464" rx="96" fill="none" stroke="rgba(247,242,248,.14)" stroke-width="2"/>
+  <text x="256" y="236" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="120" fill="url(#g)">IdolTalk</text>
+  <text x="256" y="316" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="34" letter-spacing="10" fill="rgba(247,242,248,.55)">THE EVENING EDIT</text>
+  <rect x="176" y="356" width="160" height="3" rx="1.5" fill="url(#g)" opacity=".8"/>
+</svg>

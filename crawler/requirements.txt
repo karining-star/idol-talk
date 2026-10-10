@@ -1,0 +1,7 @@
+# Idol Talk 素材采集依赖
+patchright
+yt-dlp
+numpy
+scipy
+opencv-python
+requests
