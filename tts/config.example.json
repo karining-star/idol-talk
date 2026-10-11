@@ -1,0 +1,22 @@
+{
+  "port": 8780,
+  "engine_default": "gpt_sovits",
+  "gptsovits_url": "http://127.0.0.1:9880",
+
+  "volc_appid": "",
+  "volc_token": "",
+  "volc_cluster": "volcano_icl",
+  "volc_voice_type": "",
+
+  "voices_dir": "<你的音色参考音频目录>",
+  "cache_dir": "<你的合成缓存目录>",
+  "total_personas": 132,
+
+  "aliyun_dashscope_key": "",
+  "aliyun_oss_endpoint": "oss-cn-beijing.aliyuncs.com",
+  "aliyun_oss_bucket": "",
+  "aliyun_oss_ak": "",
+  "aliyun_oss_sk": "",
+
+  "engine_fallback": "cosyvoice"
+}

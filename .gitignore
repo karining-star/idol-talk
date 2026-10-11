@@ -5,6 +5,12 @@ __pycache__/
 Thumbs.db
 node_modules/
 *.log
+# 本地配置（含密钥，绝不入库；模板见 tts/config.example.json）
+config.json
+config.local.json
+*.local.json
+.env
+.env.*
 # 素材（版权原因不入库）
 app/photos/
 tts/refs/
