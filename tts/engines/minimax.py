@@ -40,7 +40,7 @@ try:
 except ImportError:
     msvcrt = None
 
-from . import EngineUnavailableError, TTSEngine, VoiceNotReadyError, VoiceStore
+from . import DEFAULT_VOICES_DIR, EngineUnavailableError, TTSEngine, VoiceNotReadyError, VoiceStore
 from .gpt_sovits import find_ffmpeg  # ffmpeg 定位逻辑与 gpt_sovits 保持一致
 
 MINIMAX_UNCONFIGURED = (
@@ -128,7 +128,7 @@ class MiniMaxEngine(TTSEngine):
         self.model = str(config.get("minimax_model") or "speech-2.8-hd").strip()
         self.noise_reduction = bool(config.get("minimax_noise_reduction", True))
         self.creds_ok = bool(self.api_key and self.group_id)
-        self.voices_dir = Path(config.get("voices_dir") or r"C:\Users\95242\Desktop\IdolTalk-voices")
+        self.voices_dir = Path(config.get("voices_dir") or DEFAULT_VOICES_DIR)
         cd = Path(config.get("cache_dir") or "cache")
         self.cache_dir = cd if cd.is_absolute() else Path(__file__).resolve().parent.parent / cd
         # 服务层会传入共享的 VoiceStore；单独调用（voice_batch 等）时自建

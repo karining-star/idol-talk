@@ -2,20 +2,20 @@
 """
 IdolTalk 音色库批量管理：ingest 入库 / transcribe 转写 / validate 校验 / report 报告。
 
-用法（Python 不在 PATH，用绝对路径调用）：
-  D:\\AI\\Python312\\python.exe voice_batch.py ingest                              # 扫描素材目录入库
-  D:\\AI\\Python312\\python.exe voice_batch.py ingest --only aespa-giselle        # 只处理指定 id（逗号分隔）
-  D:\\AI\\Python312\\python.exe voice_batch.py transcribe                         # faster-whisper 补 prompt_text
-  D:\\AI\\Python312\\python.exe voice_batch.py transcribe --force                 # 忽略状态过滤强制重跑
-  D:\\AI\\Python312\\python.exe voice_batch.py validate                           # 格式检查 + 本地 TTS 试合成
-  D:\\AI\\Python312\\python.exe voice_batch.py validate --tts-url http://127.0.0.1:8780
-  D:\\AI\\Python312\\python.exe voice_batch.py report                             # 生成 qc\\qc_report.html
+用法（在 tts/ 目录下执行）：
+  python voice_batch.py ingest                              # 扫描素材目录入库
+  python voice_batch.py ingest --only aespa-giselle        # 只处理指定 id（逗号分隔）
+  python voice_batch.py transcribe                         # faster-whisper 补 prompt_text
+  python voice_batch.py transcribe --force                 # 忽略状态过滤强制重跑
+  python voice_batch.py validate                           # 格式检查 + 本地 TTS 试合成
+  python voice_batch.py validate --tts-url http://127.0.0.1:8780
+  python voice_batch.py report                             # 生成 qc/qc_report.html
 
-数据布局（只写 D 盘或 IdolTalk-voices，不碰 C 盘其他位置）：
-  C:\\Users\\95242\\Desktop\\IdolTalk-voices\\registry.json     # 音色注册表（本脚本维护）
-  C:\\Users\\95242\\Desktop\\IdolTalk-voices\\<pid>\\ref*.wav   # 16k 单声道参考音频（fetch_idol_voices.py 抓的）
-  C:\\Users\\95242\\Desktop\\IdolTalk-voices\\<pid>\\meta.json  # queries + clips（含 prompt_text）
-  C:\\Users\\95242\\Desktop\\IdolTalk-voices\\qc\\              # 质检报告 + 试合成 mp3
+数据布局（目录由 tts/config.json 的 voices_dir 决定，默认仓库下 voices/）：
+  <voices_dir>/registry.json     # 音色注册表（本脚本维护）
+  <voices_dir>/<pid>/ref*.wav    # 16k 单声道参考音频（fetch_idol_voices.py 抓的）
+  <voices_dir>/<pid>/meta.json   # queries + clips（含 prompt_text）
+  <voices_dir>/qc/               # 质检报告 + 试合成 mp3
 状态机：sourced（素材入库）→ transcribed（有转写文本）→ validated（试合成通过）→ ready；missing/failed 特殊态。
 """
 import argparse
@@ -41,10 +41,12 @@ from pathlib import Path
 import numpy as np
 import requests
 
+import paths  # 本机路径解析：tts/config.json → 环境变量 → 仓库内相对默认值
+
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-APP_HTML = Path(r"C:\Users\95242\Desktop\IdolTalk.html")
-VOICES_DIR = Path(r"C:\Users\95242\Desktop\IdolTalk-voices")
+APP_HTML = paths.path("app_html")
+VOICES_DIR = paths.path("voices_dir")
 REGISTRY = VOICES_DIR / "registry.json"
 REGISTRY_LOCK = VOICES_DIR / "registry.lock"   # 跨进程写锁，与 fetch_idol_voices.py 共用同一把
 QC_DIR = VOICES_DIR / "qc"
@@ -72,12 +74,13 @@ def find_ffmpeg():
         return imageio_ffmpeg.get_ffmpeg_exe()
     except Exception:
         pass
+    local = os.environ.get("LOCALAPPDATA") or ""
     patterns = [
-        r"C:\Users\95242\AppData\Local\Microsoft\WinGet\Links\ffmpeg.exe",
-        r"C:\Users\95242\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg*\ffmpeg*\bin\ffmpeg.exe",
+        str(Path(local) / "Microsoft/WinGet/Links/ffmpeg.exe"),
+        str(Path(local) / "Microsoft/WinGet/Packages/Gyan.FFmpeg*/ffmpeg*/bin/ffmpeg.exe"),
         r"C:\ffmpeg\bin\ffmpeg.exe",
         r"C:\Program Files\ffmpeg\bin\ffmpeg.exe",
-        r"D:\AI\ffmpeg\bin\ffmpeg.exe",
+        r"D:\ffmpeg\bin\ffmpeg.exe",
     ]
     for pat in patterns:
         for hit in glob.glob(pat):
@@ -461,8 +464,7 @@ def cmd_transcribe(args):
     # 环境要在 import faster_whisper 之前配好：HF 国内镜像 + 模型缓存放 D 盘（C 盘紧张）
     os.environ.setdefault("HF_ENDPOINT", "https://hf-mirror.com")
     try:
-        hf_home = Path(r"D:\AI\hf_cache")
-        hf_home.mkdir(parents=True, exist_ok=True)
+        hf_home = paths.dir_of("hf_home")
         os.environ.setdefault("HF_HOME", str(hf_home))
     except Exception:
         pass
@@ -586,8 +588,8 @@ def cmd_validate(args):
         print(f"[warn] {len(no_text)} 位还缺 prompt_text（建议先跑 transcribe），服务可能拒绝：{preview}", flush=True)
     print(f"第二步：通过本地 TTS 服务试合成 {len(passed)} 位（{base}）…", flush=True)
     if not tts_alive(base):
-        print(f"[!] TTS 服务不可达。请先启动：\n"
-              f"    cd C:\\Users\\95242\\claude-projects\\idol-tts && D:\\AI\\Python312\\python.exe tts_server.py\n"
+        print(f"[!] TTS 服务不可达。请先在 tts/ 目录下启动：\n"
+              f"    python tts_server.py\n"
               f"    （服务会加载 {REGISTRY}，起来后再重跑 validate）", flush=True)
         return 1
 

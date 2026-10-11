@@ -15,8 +15,10 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).parent))
 from audit_gender import est_f0_median, read_wav  # noqa: E402
 
-VOICES = Path(r"C:\Users\95242\Desktop\IdolTalk-voices")
-BACKUP = Path(r"D:\AI\voice-refs-backup")
+import paths  # noqa: E402
+
+VOICES = paths.path("voices_dir")
+BACKUP = paths.path("backup_dir")
 
 
 def clip_stats(files):
@@ -82,13 +84,14 @@ def main():
         print(f"  {r['pid']:26s} 现状{r['cur']:6.1f}(IQR{r['cur_m'].get('iqr')} 浊{r['cur_m'].get('voiced')})"
               f" ← 旧版{r['bak']:6.1f}(IQR{r['bak_m'].get('iqr')} 浊{r['bak_m'].get('voiced')})  差{r['delta']}")
 
-    json_path = Path(r"D:\AI\tmp\clip_compare.json")
-    json_path.parent.mkdir(parents=True, exist_ok=True)
+    work = paths.dir_of("work_dir")
+    json_path = work / "clip_compare.json"
     json_path.write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"\n完整报告: {json_path}")
     # 供脚本消费的纯 pid 列表
-    (Path(r"D:\AI\tmp\worse_ids.txt")).write_text(",".join(r["pid"] for r in worse), encoding="utf-8")
-    print(f"还原名单: D:\\AI\\tmp\\worse_ids.txt（{len(worse)} 位）")
+    worse_ids = work / "worse_ids.txt"
+    worse_ids.write_text(",".join(r["pid"] for r in worse), encoding="utf-8")
+    print(f"还原名单: {worse_ids}（{len(worse)} 位）")
 
 
 if __name__ == "__main__":

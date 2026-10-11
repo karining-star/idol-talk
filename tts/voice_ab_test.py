@@ -3,7 +3,7 @@
 
 方法：每位爱豆用同一句英文合成语音 → faster-whisper 转写 → 与原文比对（词级相似度）。
 相似度低 = 声音糊/电音/口音不对 → 失败。
-可续跑：已测的跳过。结果 D:\\AI\\tmp\\voice_ab\\report.json
+可续跑：已测的跳过。结果写到 work_dir/voice_ab/report.json
 """
 import json
 import re
@@ -16,11 +16,13 @@ from pathlib import Path
 
 import numpy as np
 
+import paths
+
 TTS = "http://127.0.0.1:8780/v1/audio/stream"
 TEXT = "I really missed you today, and I want to know how your day went."
-OUT = Path(r"D:\AI\tmp\voice_ab")
+OUT = paths.dir_of("work_dir") / "voice_ab"
 OUT.mkdir(parents=True, exist_ok=True)
-REG = Path(r"C:\Users\95242\Desktop\IdolTalk-voices\registry.json")
+REG = paths.path("voices_dir") / "registry.json"
 
 
 def synth(pid):
@@ -97,7 +99,7 @@ def main():
     print("加载 faster-whisper（small/cpu/int8）…", flush=True)
     import os
     os.environ.setdefault("HF_ENDPOINT", "https://hf-mirror.com")
-    os.environ.setdefault("HF_HOME", r"D:\AI\hf_cache")
+    os.environ.setdefault("HF_HOME", str(paths.dir_of("hf_home")))
     try:  # av(PyAV) 16+ 兼容 shim：剥掉 faster-whisper 仍会传的 metadata_errors 参数
         import av as _av
         if not getattr(_av.open, "_idol_compat", False):

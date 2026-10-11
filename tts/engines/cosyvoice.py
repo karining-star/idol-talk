@@ -48,7 +48,7 @@ cosyvoice_preprocess（默认 false：本地管线已降噪，关闭预处理最
 音色 ID：registry persona 的 "cosyvoice_voice_id"（首次合成自动注册并写回 registry.json，
 附 cosyvoice_voice_model / cosyvoice_voice_status / cosyvoice_voice_created_at 簿记字段）。
 凭据缺失：startup 不崩溃，is_up() = False，synthesize 抛 EngineUnavailableError。
-依赖：D:\AI\Python312 已装 dashscope + oss2（缺库时同样按未配置处理并给安装提示）。
+依赖：本机 Python 需装 dashscope + oss2（缺库时同样按未配置处理并给安装提示）。
 """
 import asyncio
 import json
@@ -82,8 +82,8 @@ except ImportError:
     oss2 = None
     oss2.exceptions = None  # type: ignore[module-attr]
 
-from . import (EngineUnavailableError, TTSEngine, VoiceNotReadyError, VoiceStore,
-               _clip_rank)
+from . import (DEFAULT_VOICES_DIR, EngineUnavailableError, TTSEngine, VoiceNotReadyError,
+               VoiceStore, _clip_rank)
 from .gpt_sovits import find_ffmpeg  # 与 gpt_sovits / volc / minimax 保持同一份 ffmpeg 解析
 
 COSYVOICE_UNCONFIGURED = (
@@ -241,8 +241,7 @@ class CosyVoiceEngine(TTSEngine):
             self._sdk_missing.append("dashscope")
         if oss2 is None:
             self._sdk_missing.append("oss2")
-        self.voices_dir = Path(config.get("voices_dir")
-                                or r"C:\Users\95242\Desktop\IdolTalk-voices")
+        self.voices_dir = Path(config.get("voices_dir") or DEFAULT_VOICES_DIR)
         cd = Path(config.get("cache_dir") or "cache")
         self.cache_dir = cd if cd.is_absolute() else Path(__file__).resolve().parent.parent / cd
         # 服务层会传入共享的 VoiceStore；单独调用（enroll_all 等）时自建

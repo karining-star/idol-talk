@@ -230,6 +230,15 @@
     '  border-bottom:1px solid var(--line); text-align:left; }',
     '.me-row:last-child{ border-bottom:0; }',
     '.me-ava{ --ava:34px; }',
+    /* 缺图占位：与 home.js 同款（渐变 + 衬线首字母），头像行缺图时不显示浏览器破图标记 */
+    '.me-ava.no-photo{ background:',
+    '  radial-gradient(120% 90% at 30% 20%, rgba(242,160,220,.26), transparent 60%),',
+    '  linear-gradient(160deg, var(--ink-3), var(--ink-4)); }',
+    '.me-ava.no-photo::after{',
+    '  content:attr(data-initial); position:absolute; inset:0; z-index:2;',
+    '  display:flex; align-items:center; justify-content:center;',
+    '  font-family:var(--serif); font-style:italic; font-size:16px;',
+    '  background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent; }',
     '.mr-id{ flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }',
     '.mr-name{ font-family:var(--serif); font-size:14.5px; letter-spacing:.05em; text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }',
     '.mr-grp{ font-size:8.5px; font-weight:600; letter-spacing:.2em; color:var(--p3); text-transform:uppercase; }',
@@ -289,8 +298,8 @@
     if (!info) return '';                       /* 数据里没有 → 静默跳过 */
     var p = info.p;
     return '<button class="me-row" type="button" data-id="' + esc(p.id) + '" aria-label="与 ' + esc(p.stage) + ' 对话">' +
-      '<span class="ava me-ava"><span class="speak-halo"></span><span class="ring"></span>' +
-      '<img src="' + esc(App.photoFor(p.id)) + '" alt="' + esc(p.stage) + '" loading="lazy"></span>' +
+      '<span class="ava me-ava" data-initial="' + esc(p.stage.charAt(0)) + '"><span class="speak-halo"></span><span class="ring"></span>' +
+      '<img data-photo src="' + esc(App.photoFor(p.id)) + '" alt="' + esc(p.stage) + '" loading="lazy"></span>' +
       '<span class="mr-id"><span class="mr-name">' + esc(p.stage) + '</span>' +
       '<span class="mr-grp">' + esc(p.group) + ' · N°' + pad2(info.no) + '</span></span>' +
       (when ? '<span class="mr-when">' + esc(when) + '</span>' : '') +
@@ -556,6 +565,16 @@
       };
 
       /* —— 事件接线 —— */
+
+      /* 缺图占位：error 不冒泡，用捕获阶段委托 */
+      root.addEventListener('error', function (e) {
+        var t = e.target;
+        if (!t || t.tagName !== 'IMG' || !t.hasAttribute('data-photo')) return;
+        var holder = t.closest('.me-ava');
+        t.style.display = 'none';
+        t.removeAttribute('src');
+        if (holder) holder.classList.add('no-photo');
+      }, true);
 
       /* 爱豆行 → 直达对话（收藏与最近共用一个委托） */
       root.addEventListener('click', function (e) {

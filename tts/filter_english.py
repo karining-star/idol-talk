@@ -10,7 +10,9 @@ import re
 import sys
 from pathlib import Path
 
-V = Path(r"C:\Users\95242\Desktop\IdolTalk-voices")
+import paths
+
+V = paths.path("voices_dir")
 REG = V / "registry.json"
 
 
@@ -54,7 +56,7 @@ def main():
     for d in detail[:30]:
         print(d)
     print(f"\n★ 现在没有连续英语片段的（需再抓）：{len(empty)} 位")
-    Path(r"D:\AI\tmp\no_english.txt").write_text(",".join(empty), encoding="utf-8")
+    (paths.dir_of("work_dir") / "no_english.txt").write_text(",".join(empty), encoding="utf-8")
 
 
 if __name__ == "__main__":

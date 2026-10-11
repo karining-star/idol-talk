@@ -19,7 +19,9 @@ import numpy as np
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-VOICES = Path(r"C:\Users\95242\Desktop\IdolTalk-voices")
+import paths
+
+VOICES = paths.path("voices_dir")
 
 
 def read_wav(path):
@@ -83,7 +85,7 @@ def verdict(f0, expected):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--only", default="")
-    ap.add_argument("--json", default=r"D:\AI\tmp\gender_audit.json")
+    ap.add_argument("--json", default=str(paths.path("work_dir") / "gender_audit.json"))
     args = ap.parse_args()
     only = {s.strip() for s in args.only.split(",") if s.strip()}
 

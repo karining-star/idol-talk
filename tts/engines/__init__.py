@@ -9,6 +9,10 @@ import json
 from abc import ABC, abstractmethod
 from pathlib import Path
 
+# 未在 config 里配 voices_dir 时的兜底目录（仓库下 voices/）；
+# 正常由 tts_server.load_config() 传入，这里是引擎被单独调用时的保底。
+DEFAULT_VOICES_DIR = Path(__file__).resolve().parents[2] / "voices"
+
 
 class EngineUnavailableError(Exception):
     """后端引擎没启动（服务层映射为 503 + 中文提示）。"""

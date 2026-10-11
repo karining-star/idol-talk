@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """批量降噪：对爱豆的参考音频跑 干音处理链（高通70Hz + afftdn + arnndn 神经降噪）。
 
-原文件备份到 D:\\AI\\voice-refs-backup\\<pid>\\，处理后就地替换。
+原文件备份到 <backup_dir>\<pid>\（默认仓库下 voice-refs-backup/），处理后就地替换。
 降噪不改变语音内容 → prompt_text 继续有效；但合成缓存必须清（音色变了）。
 
 ⚠️ 只处理"新抓的、未降噪的"素材！已降过噪的（如吉赛尔等 31 位豁免重抓的）不要重复跑。
@@ -19,10 +19,20 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="repla
 
 import imageio_ffmpeg
 
+import paths
+
 FF = imageio_ffmpeg.get_ffmpeg_exe()
-VOICES = Path(r"C:\Users\95242\Desktop\IdolTalk-voices")
-BACKUP = Path(r"D:\AI\voice-refs-backup")
-FILTER = "highpass=f=70,afftdn=nf=-38:nr=12,arnndn=m='D\\:/AI/onnx-tts/rnnn/std.rnnn'"
+VOICES = paths.path("voices_dir")
+BACKUP = paths.path("backup_dir")
+
+# 三级降噪链：高通 + 频谱 + 神经网络。arnndn 模型没配/不在位时自动降为前两级。
+_rnnn = paths.maybe_path("rnnn_model")
+if _rnnn and _rnnn.is_file():
+    _m = str(_rnnn).replace("\\", "/").replace(":", "\\:")   # ffmpeg 滤镜里的 Windows 路径写法
+    FILTER = f"highpass=f=70,afftdn=nf=-38:nr=12,arnndn=m='{_m}'"
+else:
+    FILTER = "highpass=f=70,afftdn=nf=-38:nr=12"
+    print("[warn] 未配置 arnndn 神经降噪模型（config.json 的 rnnn_model），本轮只用前两级", flush=True)
 
 
 def main():

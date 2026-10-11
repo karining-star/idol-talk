@@ -2,16 +2,16 @@
 """
 批量抓取抖音上各爱豆的说话素材（视频 → 16k 单声道切片），供 GPT-SoVITS 声音克隆用。
 
-用法（Python 不在 PATH，用完整路径）：
-  D:/AI/Python312/python.exe fetch_idol_voices.py                        # 抓全部（断点续跑）
-  D:/AI/Python312/python.exe fetch_idol_voices.py --only aespa-giselle   # 只抓指定 id（可逗号分隔）
-  D:/AI/Python312/python.exe fetch_idol_voices.py --limit 5              # 只抓前 5 个（试跑用）
-  D:/AI/Python312/python.exe fetch_idol_voices.py --link aespa-giselle=https://v.douyin.com/xxxx/
-  D:/AI/Python312/python.exe fetch_idol_voices.py --add                  # 追加模式：已有切片也重抓，新切片续编号
-  D:/AI/Python312/python.exe fetch_idol_voices.py --purge-raw            # 清空 raw 原始视频目录后退出
-  D:/AI/Python312/python.exe fetch_idol_voices.py --ffmpeg D:/ff/bin/ffmpeg.exe
+用法（在 crawler/ 目录下执行）：
+  python fetch_idol_voices.py                        # 抓全部（断点续跑）
+  python fetch_idol_voices.py --only aespa-giselle   # 只抓指定 id（可逗号分隔）
+  python fetch_idol_voices.py --limit 5              # 只抓前 5 个（试跑用）
+  python fetch_idol_voices.py --link aespa-giselle=https://v.douyin.com/xxxx/
+  python fetch_idol_voices.py --add                  # 追加模式：已有切片也重抓，新切片续编号
+  python fetch_idol_voices.py --purge-raw            # 清空 raw 原始视频目录后退出
+  python fetch_idol_voices.py --ffmpeg D:/ff/bin/ffmpeg.exe
 
-产物（C:\\Users\\95242\\Desktop\\IdolTalk-voices\\）：
+产物（目录由 tts/config.json 的 voices_dir 决定，默认仓库下 voices/）：
   <pid>/refNN.wav   16k 单声道 PCM 切片（5-20s，按打分取 top）
   <pid>/meta.json   搜索词 + 每段切片明细（file/dur/score/rms_db/src）
   raw/<pid>/NN.mp4  原始视频（验证完 --purge-raw 清理）
@@ -45,9 +45,33 @@ try:
 except Exception:
     scipy_signal = None
 
-APP_HTML = Path(r"C:\Users\95242\Desktop\IdolTalk.html")
-COVERS_META = Path(r"C:\Users\95242\Desktop\IdolTalk-photos\covers_meta.json")
-OUT_DIR = Path(r"C:\Users\95242\Desktop\IdolTalk-voices")
+HERE = Path(__file__).resolve().parent
+REPO = HERE.parent
+
+
+def local_path(key, env, default):
+    """本机路径：tts/config.json（本地、不入库）→ 环境变量 → 仓库内相对默认值。
+
+    与 tts/paths.py 同一套约定；crawler/ 与 tts/ 是两个独立目录，各留一份读取逻辑。
+    未配置且无默认值时返回 None。
+    """
+    raw = ""
+    cfg = REPO / "tts" / "config.json"
+    if cfg.is_file():
+        try:
+            raw = json.loads(cfg.read_text(encoding="utf-8")).get(key) or ""
+        except Exception:
+            raw = ""
+    raw = str(raw or os.environ.get(env) or default or "")
+    if not raw:
+        return None
+    p = Path(raw)
+    return p if p.is_absolute() else (REPO / p)
+
+
+OUT_DIR = local_path("voices_dir", "IDOLTALK_VOICES", "voices")
+APP_HTML = local_path("app_html", "IDOLTALK_APP_HTML", "app/index.html")
+COVERS_META = local_path("covers_meta", "IDOLTALK_COVERS_META", "")
 REGISTRY = OUT_DIR / "registry.json"
 REGISTRY_LOCK = OUT_DIR / "registry.lock"   # 跨进程写锁，与 idol-tts/voice_batch.py 共用同一把
 RAW_DIR = OUT_DIR / "raw"
@@ -98,7 +122,6 @@ def find_ffmpeg():
     cands += [
         Path(r"C:\ffmpeg\bin\ffmpeg.exe"),
         Path(r"D:\ffmpeg\bin\ffmpeg.exe"),
-        Path(r"D:\AI\ffmpeg\bin\ffmpeg.exe"),
     ]
     for c in cands:
         try:
@@ -111,7 +134,7 @@ def find_ffmpeg():
         "找不到 ffmpeg。请任选其一解决：\n"
         "  1) winget install Gyan.FFmpeg（新开终端验证 ffmpeg -version）\n"
         "  2) set FFMPEG_PATH=C:\\路径\\bin\\ffmpeg.exe\n"
-        "  3) D:/AI/Python312/python.exe -m pip install imageio-ffmpeg\n"
+        "  3) python -m pip install imageio-ffmpeg\n"
         "  4) 运行本脚本时加 --ffmpeg 完整路径"
     )
 
@@ -148,7 +171,7 @@ def load_idols():
             "pid": pid, "group": group, "zh": zh, "stage": stage,
             "gender": "female" if group in female else "male",
         })
-    if COVERS_META.exists():
+    if COVERS_META and COVERS_META.exists():
         try:
             keys = set(json.loads(COVERS_META.read_text(encoding="utf-8")).keys())
             diff = keys - {x["pid"] for x in idols}

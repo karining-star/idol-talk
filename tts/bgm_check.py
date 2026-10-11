@@ -15,6 +15,8 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).parent))
 from audit_gender import read_wav  # noqa: E402
 
+import paths  # noqa: E402
+
 
 def bgm_score(y, sr):
     if len(y) < 400:      # 太短，判不出
@@ -52,7 +54,7 @@ def bgm_score(y, sr):
 
 
 if __name__ == "__main__":
-    V = Path(r"C:\Users\95242\Desktop\IdolTalk-voices")
+    V = paths.path("voices_dir")
     import json
     reg = json.loads((V / "registry.json").read_text(encoding="utf-8"))
     # 扫描全部：列出 bgm_score 最高的一批（最可能带 BGM）

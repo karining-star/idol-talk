@@ -2,9 +2,9 @@
 r"""
 IdolTalk 本地 TTS 代理服务：OpenAI 兼容接口 → 本地 GPT-SoVITS（引擎可插拔）。
 
-用法（Python 不在 PATH，用绝对路径）：
-  D:\AI\Python312\python.exe tts_server.py            # 端口/引擎读 config.json（默认 8780）
-  D:\AI\Python312\python.exe tts_server.py --port 8780 --engine gpt_sovits --gptsovits-url http://127.0.0.1:9880
+用法（在 tts/ 目录下执行；端口/引擎/路径读同目录 config.json，默认端口 8780）：
+  python tts_server.py
+  python tts_server.py --port 8780 --engine gpt_sovits --gptsovits-url http://127.0.0.1:9880
 
 接口（OpenAI 兼容，CORS 全放行——应用是 file:// 页面，Origin 为 null）：
   POST /v1/audio/speech  {"model","voice","input","instructions","response_format","speed"}
@@ -37,6 +37,8 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 
 from engines import EngineUnavailableError, VoiceNotReadyError, VoiceStore, load_engine
 
+import paths
+
 BASE_DIR = Path(__file__).resolve().parent
 
 
@@ -52,7 +54,7 @@ def load_config() -> dict:
     cfg.setdefault("port", 8780)
     cfg.setdefault("engine_default", "gpt_sovits")
     cfg.setdefault("gptsovits_url", "http://127.0.0.1:9880")
-    cfg.setdefault("voices_dir", r"C:\Users\95242\Desktop\IdolTalk-voices")
+    cfg.setdefault("voices_dir", str(paths.path("voices_dir")))
     cfg.setdefault("cache_dir", "cache")
     cd = Path(cfg["cache_dir"])
     if not cd.is_absolute():

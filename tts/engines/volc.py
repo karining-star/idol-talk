@@ -54,8 +54,8 @@ from pathlib import Path
 
 import httpx
 
-from . import (EngineUnavailableError, TTSEngine, VoiceNotReadyError, VoiceStore,
-               _clip_rank)
+from . import (DEFAULT_VOICES_DIR, EngineUnavailableError, TTSEngine, VoiceNotReadyError,
+               VoiceStore, _clip_rank)
 from .gpt_sovits import find_ffmpeg  # 与 gpt_sovits / voice_batch 保持同一份 ffmpeg 解析
 
 VOLC_UNCONFIGURED = ("火山引擎声音复刻未配置：请在 config.json 填写 volc_appid / volc_token"
@@ -237,7 +237,7 @@ class VolcEngine(TTSEngine):
         self.cluster = str(config.get("volc_cluster") or "volcano_icl").strip() or "volcano_icl"
         # 全局兜底音色（用户在控制台手动建好的 voice_type；仅在 persona 连参考音频都没有时使用）
         self.default_voice_type = str(config.get("volc_voice_type") or "").strip()
-        self.voices_dir = Path(config.get("voices_dir") or r"C:\Users\95242\Desktop\IdolTalk-voices")
+        self.voices_dir = Path(config.get("voices_dir") or DEFAULT_VOICES_DIR)
         cd = Path(config.get("cache_dir") or "cache")
         self.cache_dir = cd if cd.is_absolute() else Path(__file__).resolve().parent.parent / cd
         self.store = config.get("store") or VoiceStore(self.voices_dir)

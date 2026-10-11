@@ -22,7 +22,7 @@ from pathlib import Path
 
 import httpx
 
-from . import EngineUnavailableError, TTSEngine, VoiceNotReadyError, VoiceStore
+from . import DEFAULT_VOICES_DIR, EngineUnavailableError, TTSEngine, VoiceNotReadyError, VoiceStore
 
 GPTSOVITS_DOWN = "GPT-SoVITS api_v2 未启动，请先运行整合包的 api_v2.py（默认 http://127.0.0.1:9880）"
 
@@ -31,12 +31,13 @@ GPTSOVITS_DOWN = "GPT-SoVITS api_v2 未启动，请先运行整合包的 api_v2.
 _SYNTH_LOCK = asyncio.Semaphore(4)
 
 # 与 voice_batch.py 的 find_ffmpeg 保持一致的候选位置
+_LOCALAPPDATA = os.environ.get("LOCALAPPDATA") or ""
 _FFMPEG_PATTERNS = [
-    r"C:\Users\95242\AppData\Local\Microsoft\WinGet\Links\ffmpeg.exe",
-    r"C:\Users\95242\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg*\ffmpeg*\bin\ffmpeg.exe",
+    str(Path(_LOCALAPPDATA) / "Microsoft/WinGet/Links/ffmpeg.exe"),
+    str(Path(_LOCALAPPDATA) / "Microsoft/WinGet/Packages/Gyan.FFmpeg*/ffmpeg*/bin/ffmpeg.exe"),
     r"C:\ffmpeg\bin\ffmpeg.exe",
     r"C:\Program Files\ffmpeg\bin\ffmpeg.exe",
-    r"D:\AI\ffmpeg\bin\ffmpeg.exe",
+    r"D:\ffmpeg\bin\ffmpeg.exe",
 ]
 
 
@@ -68,7 +69,7 @@ class GPTSoVITSEngine(TTSEngine):
 
     def __init__(self, config: dict):
         self.base_url = (config.get("gptsovits_url") or "http://127.0.0.1:9880").rstrip("/")
-        self.voices_dir = Path(config.get("voices_dir") or r"C:\Users\95242\Desktop\IdolTalk-voices")
+        self.voices_dir = Path(config.get("voices_dir") or DEFAULT_VOICES_DIR)
         cd = Path(config.get("cache_dir") or "cache")
         self.cache_dir = cd if cd.is_absolute() else Path(__file__).resolve().parent.parent / cd
         # 服务层会传入共享的 VoiceStore；单独调用（voice_batch 等）时自建
