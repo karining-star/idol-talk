@@ -70,7 +70,7 @@ def local_path(key, env, default):
 
 
 OUT_DIR = local_path("voices_dir", "IDOLTALK_VOICES", "voices")
-APP_HTML = local_path("app_html", "IDOLTALK_APP_HTML", "app/index.html")
+APP_HTML = local_path("app_html", "IDOLTALK_APP_HTML", "app/js/data.js")
 COVERS_META = local_path("covers_meta", "IDOLTALK_COVERS_META", "")
 REGISTRY = OUT_DIR / "registry.json"
 REGISTRY_LOCK = OUT_DIR / "registry.lock"   # 跨进程写锁，与 idol-tts/voice_batch.py 共用同一把
@@ -158,25 +158,45 @@ def now():
 
 
 def load_idols():
-    """从 IdolTalk.html 解析 seeds + femaleGroups（gender 就来自这里），并与 covers_meta.json 键核对。"""
-    html = APP_HTML.read_text(encoding="utf-8")
-    block = html.split("const seeds = [", 1)[1].split("];", 1)[0]
-    rows = re.findall(r"\['([^']*)','([^']*)','([^']*)','([^']*)'\]", block)
-    fblock = html.split("const femaleGroups=new Set([", 1)[1].split("]);", 1)[0]
-    female = set(re.findall(r"'([^']*)'", fblock))
+    """读人设表，支持两种来源，并与 covers_meta.json 键核对：
+
+      · 桌面单文件版 IdolTalk.html —— 解析 const seeds = [...] + femaleGroups
+      · 仓库版 app/js/data.js      —— 解析 var IDOLS = [{...}]（字段已齐全）
+
+  返回 [{pid, group, zh, stage, gender}, ...]
+    """
+    text = APP_HTML.read_text(encoding="utf-8")
     idols = []
-    for group, zh, stage, korean in rows:
-        pid = f"{slug(group)}-{slug(stage)}"
-        idols.append({
-            "pid": pid, "group": group, "zh": zh, "stage": stage,
-            "gender": "female" if group in female else "male",
-        })
+
+    if "const seeds = [" in text:
+        block = text.split("const seeds = [", 1)[1].split("];", 1)[0]
+        rows = re.findall(r"\['([^']*)','([^']*)','([^']*)','([^']*)'\]", block)
+        fblock = text.split("const femaleGroups=new Set([", 1)[1].split("]);", 1)[0]
+        female = set(re.findall(r"'([^']*)'", fblock))
+        for group, zh, stage, korean in rows:
+            idols.append({
+                "pid": f"{slug(group)}-{slug(stage)}", "group": group, "zh": zh, "stage": stage,
+                "gender": "female" if group in female else "male",
+            })
+    else:
+        m = re.search(r"var IDOLS = (\[.*?\n\s*\]);", text, re.S)
+        if not m:
+            raise RuntimeError(
+                f"{APP_HTML} 里既没有『const seeds = [』也没有『var IDOLS = [』；"
+                "请在 tts/config.json 的 app_html 指向你的 IdolTalk.html 或 app/js/data.js")
+        raw = re.sub(r",(\s*\])", r"\1", m.group(1))   # JS 允许尾随逗号，JSON 不允许
+        for o in json.loads(raw):
+            idols.append({
+                "pid": o["id"], "group": o["group"], "zh": o["zh"],
+                "stage": o["stage"], "gender": o["gender"],
+            })
+
     if COVERS_META and COVERS_META.exists():
         try:
             keys = set(json.loads(COVERS_META.read_text(encoding="utf-8")).keys())
             diff = keys - {x["pid"] for x in idols}
             if diff:
-                print(f"[warn] covers_meta 里有 {len(diff)} 个 id 不在 HTML seeds 里：{sorted(diff)[:5]}", flush=True)
+                print(f"[warn] covers_meta 里有 {len(diff)} 个 id 不在人设表里：{sorted(diff)[:5]}", flush=True)
         except Exception:
             pass
     return idols

@@ -18,7 +18,7 @@ SPEC = {
     "backup_dir":  ("IDOLTALK_BACKUP", "voice-refs-backup"),
     "work_dir":    ("IDOLTALK_WORK", "work"),
     "hf_home":     ("HF_HOME", ".hf_cache"),
-    "app_html":    ("IDOLTALK_APP_HTML", ""),
+    "app_html":    ("IDOLTALK_APP_HTML", "app/js/data.js"),
     "covers_meta": ("IDOLTALK_COVERS_META", ""),
     "rnnn_model":  ("IDOLTALK_RNNN", ""),
 }
