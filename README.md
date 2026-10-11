@@ -9,6 +9,12 @@ Idol Talk 是一个 **AI 角色陪练应用**：每位爱豆都有**自己的脸
   <b>纯前端 PWA</b> · 零框架零构建 · 双击即可运行 · 可自托管后端 · 全栈开源
 </p>
 
+> 🎬 **在线演示（可听到 5 位爱豆各自的克隆音色）** → <https://www.bilibili.com/video/BV1U2p562EaT>
+>
+> ⚠️ 受肖像权与著作权限制，**本仓库不含爱豆的照片与音色素材**（见文末「合规声明」）。
+> 直接 clone 运行可以看到完整界面与对话，但**听不到声音** —— 要听到人声请先看上面的演示视频，
+> 或按「3. 采集自己的素材」自己跑一遍采集流水线。
+
 ---
 
 ## ✨ 特性
@@ -45,9 +51,17 @@ python -m http.server 8899
 
 ### 2. 启用语音（可选）
 
+> ⚠️ **先注意**：TTS 服务只负责"合成"，**音色参考音频不在仓库里**（版权原因）。
+> 空着 `voices/` 启动，服务能起来、接口能通，但合成会因缺参考音频而失败。
+> 想真正听到爱豆的声音，两条路二选一：
+>
+> - **看演示视频**（最快）：<https://www.bilibili.com/video/BV1U2p562EaT>
+> - **自己采**：先做「3. 采集自己的素材」，再回来启服务
+
 ```bash
 cd tts
 pip install -r requirements.txt          # 见 requirements.txt
+cp config.example.json config.json       # 按需填写路径与密钥（config.json 不入库）
 python tts_server.py                     # 启动 OpenAI 兼容 TTS 代理（默认 8780）
 ```
 
