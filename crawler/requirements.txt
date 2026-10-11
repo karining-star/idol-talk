@@ -1,6 +1,7 @@
 # Idol Talk 素材采集依赖
 patchright
 yt-dlp
+imageio-ffmpeg
 numpy
 scipy
 opencv-python

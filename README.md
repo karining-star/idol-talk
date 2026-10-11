@@ -119,9 +119,8 @@ IdolTalk/
 │   ├── filter_english.py      连续英语过滤
 │   ├── batch_denoise.py       三级降噪链
 │   └── voice_ab_test.py       可懂度测试（合成→回听→比对）
-├── docs/                设计文档与作品介绍
-│   └── IdolTalk-作品介绍文档.pdf
-└── scripts/             部署与工具脚本
+└── docs/                设计文档与作品介绍
+    └── IdolTalk-作品介绍文档.pdf
 ```
 
 ---

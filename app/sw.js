@@ -36,6 +36,7 @@ const SHELL = [
   'js/screens/home.js',
   'js/screens/chat.js',
   'js/screens/cards.js',
+  'js/screens/convos.js',
   'js/screens/me.js',
   'assets/icon.svg',
   'icons/icon-192.png',
