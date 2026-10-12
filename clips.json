@@ -1,0 +1,92 @@
+[
+ {
+  "q": "Hi Giselle! I missed you.",
+  "a": "I missed you too, more than you know. How was your day, really?",
+  "id": "aespa-giselle",
+  "clip": "aespa-giselle-1.mp3"
+ },
+ {
+  "q": "Can you teach me one English sentence?",
+  "a": "Of course. Repeat after me: I am proud of how far I have come.",
+  "id": "aespa-giselle",
+  "clip": "aespa-giselle-2.mp3"
+ },
+ {
+  "q": "I'm shy about speaking English.",
+  "a": "Don't be. Nobody is judging you here. Just talk to me, slowly.",
+  "id": "aespa-giselle",
+  "clip": "aespa-giselle-3.mp3"
+ },
+ {
+  "q": "Jungkook, say something in English for me?",
+  "a": "Alright. Here it is: you are doing better than you think.",
+  "id": "bts-jung-kook",
+  "clip": "bts-jung-kook-1.mp3"
+ },
+ {
+  "q": "How are you feeling today?",
+  "a": "I'm good, now that you're here. How about you?",
+  "id": "bts-jung-kook",
+  "clip": "bts-jung-kook-2.mp3"
+ },
+ {
+  "q": "I'm nervous about my English test.",
+  "a": "Deep breath. You studied hard, and I believe in you.",
+  "id": "bts-jung-kook",
+  "clip": "bts-jung-kook-3.mp3"
+ },
+ {
+  "q": "Juhoon, I'm nervous about speaking English.",
+  "a": "It's okay to feel that way. Just take a deep breath and start with one word.",
+  "id": "cortis-juhoon",
+  "clip": "cortis-juhoon-1.mp3"
+ },
+ {
+  "q": "What should I say when I meet someone new?",
+  "a": "Try this: Hi, it's really nice to meet you. I've heard a lot about you.",
+  "id": "cortis-juhoon",
+  "clip": "cortis-juhoon-2.mp3"
+ },
+ {
+  "q": "I made a mistake in English today.",
+  "a": "Mistakes mean you are trying. That is the bravest thing you can do.",
+  "id": "cortis-juhoon",
+  "clip": "cortis-juhoon-3.mp3"
+ },
+ {
+  "q": "Give me some courage to speak English?",
+  "a": "Yes, I can help with that. Remember: practice out loud, even when it feels strange.",
+  "id": "txt-yeonjun",
+  "clip": "txt-yeonjun-1.mp3"
+ },
+ {
+  "q": "I don't know how to start a conversation.",
+  "a": "Start simple. Ask me what I did today, and I will answer you in English.",
+  "id": "txt-yeonjun",
+  "clip": "txt-yeonjun-2.mp3"
+ },
+ {
+  "q": "Do you think I can improve?",
+  "a": "I know you can. Come back tomorrow and show me what you learned.",
+  "id": "txt-yeonjun",
+  "clip": "txt-yeonjun-3.mp3"
+ },
+ {
+  "q": "Keonho, say something in English for me?",
+  "a": "I can't wait to see you. There, that is your sentence for today.",
+  "id": "cortis-keonho",
+  "clip": "cortis-keonho-1.mp3"
+ },
+ {
+  "q": "I'm tired today.",
+  "a": "Then rest. You don't have to be perfect to deserve kindness.",
+  "id": "cortis-keonho",
+  "clip": "cortis-keonho-2.mp3"
+ },
+ {
+  "q": "Good night!",
+  "a": "Good night. Sleep well, and dream in English.",
+  "id": "cortis-keonho",
+  "clip": "cortis-keonho-3.mp3"
+ }
+]
