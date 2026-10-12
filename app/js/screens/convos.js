@@ -158,7 +158,7 @@
     return '' +
       '<div class="cv-row" data-id="' + esc(idol.id) + '" role="button" tabindex="0" aria-label="和 ' + esc(idol.zh) + ' 的会话">' +
       '  <span class="cv-sheen" aria-hidden="true"></span>' +
-      '  <span class="cv-ava"><img loading="lazy" src="' + esc(App.photoFor ? App.photoFor(idol.id) : '') + '" alt="" onerror="this.style.opacity=0"><span class="cv-dot" aria-hidden="true"></span></span>' +
+      '  <span class="cv-ava" style="--pos:' + (App.photoPos ? App.photoPos(idol.id) : '50% 20%') + ';--zoom:' + (App.photoZoom ? App.photoZoom(idol.id) : 1) + ';--fy:' + (App.photoY ? Math.round(App.photoY(idol.id) * 100) + '%' : '30%') + '"><img loading="lazy" src="' + esc(App.photoFor ? App.photoFor(idol.id) : '') + '" alt="" onerror="this.style.opacity=0"><span class="cv-dot" aria-hidden="true"></span></span>' +
       '  <span class="cv-mid">' +
       '    <span class="cv-name"><b>' + esc(idol.stage || idol.name) + '</b><i>' + esc(idol.group) + '</i></span>' +
       '    <span class="cv-prev">' + esc(en) + '</span>' +

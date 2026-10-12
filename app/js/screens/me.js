@@ -298,7 +298,8 @@
     if (!info) return '';                       /* 数据里没有 → 静默跳过 */
     var p = info.p;
     return '<button class="me-row" type="button" data-id="' + esc(p.id) + '" aria-label="与 ' + esc(p.stage) + ' 对话">' +
-      '<span class="ava me-ava" data-initial="' + esc(p.stage.charAt(0)) + '"><span class="speak-halo"></span><span class="ring"></span>' +
+      '<span class="ava me-ava" data-initial="' + esc(p.stage.charAt(0)) + '" style="--pos:' + App.photoPos(p.id) +
+        ';--zoom:' + App.photoZoom(p.id) + ';--fy:' + Math.round(App.photoY(p.id) * 100) + '%"><span class="speak-halo"></span><span class="ring"></span>' +
       '<img data-photo src="' + esc(App.photoFor(p.id)) + '" alt="' + esc(p.stage) + '" loading="lazy"></span>' +
       '<span class="mr-id"><span class="mr-name">' + esc(p.stage) + '</span>' +
       '<span class="mr-grp">' + esc(p.group) + ' · N°' + pad2(info.no) + '</span></span>' +

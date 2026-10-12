@@ -163,8 +163,9 @@
       '  border:1px solid rgba(247,242,248,.10); background:linear-gradient(160deg,var(--ink-3),var(--ink-4));',
       '  transition:border-color var(--t-mid) var(--ease); }',
       '#screen-home .hero-card img{ width:100%; height:100%; object-fit:cover; object-position:var(--pos,50% 8%);',
-      '  transform:scale(1.001); transition:transform 1.4s var(--ease-soft); }',
-      '#screen-home .hero-card:hover img{ transform:scale(1.045); }',
+      '  transform:scale(var(--zoom,1)) translateZ(0); transform-origin:50% var(--fy,30%);',
+      '  transition:transform 1.4s var(--ease-soft); }',
+      '#screen-home .hero-card:hover img{ transform:scale(calc(var(--zoom,1) * 1.04)) translateZ(0); }',
       '#screen-home .hero-card:hover{ border-color:var(--line-rose); }',
       '#screen-home .hero-veil{ position:absolute; inset:0;',
       '  background:linear-gradient(180deg, rgba(11,8,18,.66) 0%, rgba(11,8,18,.26) 26%, rgba(11,8,18,0) 48%, rgba(11,8,18,0) 72%, rgba(11,8,18,.38) 100%); }',
@@ -216,7 +217,9 @@
       '  opacity:.75; pointer-events:none; transition:opacity var(--t-mid) var(--ease); }',
       '#screen-home .card .ph{ position:relative; z-index:1; aspect-ratio:3/4; overflow:hidden; background:transparent; }',
       '#screen-home .card .ph img{ width:100%; height:100%; object-fit:cover; object-position:var(--pos,50% 20%);',
-      '  transform:scale(1.001); transition:transform 1.2s var(--ease-soft); }',
+      '  transform:scale(var(--zoom,1)) translateZ(0); transform-origin:50% var(--fy,39%);',
+      '  transition:transform 1.2s var(--ease-soft); }',
+      '#screen-home .card:hover .ph img{ transform:scale(calc(var(--zoom,1) * 1.05)) translateZ(0); }',
       /* 全息偏光：斜向的青紫扫光，随 hover 平移 */
       '#screen-home .card .ph::after{ content:""; position:absolute; inset:0; z-index:2; pointer-events:none;',
       '  background:linear-gradient(118deg, rgba(110,255,238,.16) 0%, rgba(255,255,255,0) 34%,',
@@ -238,8 +241,24 @@
       '    0 0 38px -8px rgba(170,120,255,.75); }',
       '#screen-home .card:hover::before{ opacity:1; }',
       '#screen-home .card:hover .ph::after{ transform:translate3d(14%,-8%,0) scale(1.12); }',
-      '#screen-home .card:hover .ph img{ transform:scale(1.06); }',
       '#screen-home .card:hover .grp svg{ opacity:1; transform:translateX(0); }',
+      /* 注意：.card:hover .ph img 的规则在上面（要带上 --zoom），这里不要再写一条覆盖它 */
+
+      /* ---------- 点卡片时闪过的「一道光」 ---------- */
+      '#screen-home .card .flash{ position:absolute; inset:0; z-index:3; pointer-events:none; opacity:0;',
+      '  background:linear-gradient(104deg,',
+      '    rgba(255,255,255,0) 0%, rgba(180,255,246,.07) 38%,',
+      '    rgba(210,255,250,.72) 47.5%, rgba(255,255,255,.90) 51%, rgba(190,225,255,.60) 55%,',
+      '    rgba(150,120,255,.14) 63%, rgba(255,255,255,0) 74%);',
+      '  mix-blend-mode:screen; transform:translateX(-125%) skewX(-8deg); }',
+      '#screen-home .card.flash-on .flash{ animation:card-flash .58s var(--ease-soft) both; }',
+      '@keyframes card-flash{',
+      '  0%{ opacity:0; transform:translateX(-130%) skewX(-8deg); }',
+      '  15%{ opacity:1; }',      /* 光带进画面前就点亮，保证扫过卡片时是亮的 */
+      '  85%{ opacity:1; }',
+      '  100%{ opacity:0; transform:translateX(130%) skewX(-8deg); } }',
+      '#screen-home .card.flash-on{ box-shadow:0 0 0 1px rgba(210,255,250,.55),',
+      '  0 0 44px -6px rgba(180,255,246,.75), 0 0 60px -10px rgba(170,120,255,.6); }',
 
       /* ---------- 缺图占位（渐变 + 衬线首字母） ---------- */
       '#screen-home .ph.no-photo, #screen-home .hero-card.no-photo{ background:',
@@ -413,6 +432,10 @@
 
     heroImgEl.src = App.photoFor(idol.id);
     heroImgEl.alt = idol.stage + ', ' + idol.group;
+    heroCardEl.style.setProperty('--pos', App.photoPos(idol.id));
+    heroCardEl.style.setProperty('--fy', Math.round(App.photoY(idol.id) * 100) + '%');
+    /* 英雄卡是宽幅横条，缩放收敛一些，别把脸怼满 */
+    heroCardEl.style.setProperty('--zoom', Math.min(1.25, App.photoZoom(idol.id)).toFixed(2));
     heroCardEl.dataset.initial = (idol.stage || '?').charAt(0).toUpperCase();
     heroCardEl.setAttribute('aria-label', '与 ' + idol.stage + ' 开始对话');
     /* 若上一张缺图占位生效，换人后复位重试 */
@@ -473,9 +496,11 @@
         '<article class="card sheen rise" role="button" tabindex="0" data-id="' + esc(idol.id) + '" ' +
           'style="--i:' + (CARD_BASE + Math.min(i, STAGGER_CAP)) + '" ' +
           'aria-label="与 ' + esc(idol.stage) + ' 开始对话">' +
-          '<div class="ph" data-initial="' + initial + '">' +
+          '<div class="ph" data-initial="' + initial + '" style="--pos:' + App.photoPos(idol.id) +
+            ';--zoom:' + App.photoZoom(idol.id) + ';--fy:' + Math.round(App.photoY(idol.id) * 100) + '%">' +
             '<img data-photo="1" data-src="' + esc(App.photoFor(idol.id)) + '" alt="' + esc(idol.stage) + ', ' + esc(idol.group) + '" loading="lazy">' +
             '<div class="veil"></div>' +
+            '<span class="flash" aria-hidden="true"></span>' +
             '<span class="no">' + noStr(i + 1) + '</span>' +
             '<div class="meta">' +
               '<div class="name">' + esc(idol.stage) + '</div>' +
@@ -611,6 +636,15 @@
      事件接线
      ============================================================ */
   function wireEvents(el) {
+    /* 点卡片时闪过的「一道光」：pointerdown 立即反馈，连点也能重播 */
+    gridEl.addEventListener('pointerdown', function (e) {
+      var card = e.target && e.target.closest ? e.target.closest('.card') : null;
+      if (!card) return;
+      card.classList.remove('flash-on');
+      void card.offsetWidth;            /* 强制重排，让动画能重新触发 */
+      card.classList.add('flash-on');
+      setTimeout(function () { card.classList.remove('flash-on'); }, 640);
+    });
     /* 卡片点击（事件委托，132 张只挂一个监听） */
     gridEl.addEventListener('click', function (e) {
       var card = e.target && e.target.closest ? e.target.closest('.card') : null;

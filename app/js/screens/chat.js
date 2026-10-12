@@ -247,6 +247,11 @@
     var no = 'N°' + (n < 10 ? '0' : '') + n;
     avaImg.src = App.photoFor(id);
     avaImg.alt = idol.stage;
+    if (avaEl) {
+      avaEl.style.setProperty('--pos', App.photoPos(id));
+      avaEl.style.setProperty('--zoom', App.photoZoom(id));
+      avaEl.style.setProperty('--fy', Math.round(App.photoY(id) * 100) + '%');
+    }
     nameEl.textContent = idol.stage;
     noEl.textContent = no;
     subEl.textContent = idol.group + ' · ' + idol.zh;
@@ -448,6 +453,9 @@
         var item = el('button', 'rc-item');
         item.type = 'button';
         var ava = el('div', 'ava');
+        ava.style.setProperty('--pos', App.photoPos(rid));
+        ava.style.setProperty('--zoom', App.photoZoom(rid));
+        ava.style.setProperty('--fy', Math.round(App.photoY(rid) * 100) + '%');
         ava.appendChild(el('span', 'speak-halo'));
         ava.appendChild(el('span', 'ring'));
         var img = el('img');
