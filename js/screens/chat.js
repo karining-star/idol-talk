@@ -30,6 +30,32 @@
   /* ============ 屏幕私有样式（作用域 #screen-chat） ============ */
   var STYLE_ID = 'chat-screen-style';
   var STYLE_CSS = [
+    /* ============ 极光玻璃 Aurora Glass ============
+       深夜紫底 + 流动极光 + 磨砂玻璃。极光层挂在 #screen-chat::before 上（z-index:0），
+       内容统一抬到 z-index:1 浮在极光之上。 */
+    '#screen-chat::before{ content:""; position:absolute; inset:-18% -14%; z-index:0; pointer-events:none;',
+    '  background:',
+    '    radial-gradient(58% 40% at 14% 8%, rgba(110,255,238,.44), transparent 68%),',
+    '    radial-gradient(52% 38% at 88% 22%, rgba(170,120,255,.50), transparent 70%),',
+    '    radial-gradient(64% 44% at 42% 88%, rgba(255,120,220,.40), transparent 72%),',
+    '    radial-gradient(46% 32% at 74% 56%, rgba(110,190,255,.34), transparent 70%);',
+    '  filter:blur(38px) saturate(1.2); animation:ch-aurora 22s var(--ease-soft) infinite alternate; }',
+    '@keyframes ch-aurora{',
+    '  from{ transform:translate3d(0,0,0) scale(1) rotate(0deg); }',
+    '  to{ transform:translate3d(3%,-4%,0) scale(1.18) rotate(4deg); } }',
+    '#screen-chat .chat-head, #screen-chat .chat-body, #screen-chat .inputbar{ position:relative; z-index:1; }',
+
+    /* —— 磨砂玻璃气泡（爱豆）+ 极光描边 —— */
+    '#screen-chat .bubble.glass{',
+    '  background:linear-gradient(160deg, rgba(30,22,48,.60), rgba(14,10,24,.68)) padding-box,',
+    '    linear-gradient(135deg, rgba(110,255,238,.55), rgba(170,120,255,.5) 45%, rgba(255,120,220,.45) 78%, rgba(247,242,248,.10)) border-box;',
+    '  backdrop-filter:blur(22px) saturate(1.3); -webkit-backdrop-filter:blur(22px) saturate(1.3);',
+    '  box-shadow:0 18px 40px -26px rgba(0,0,0,.9), 0 0 26px -14px rgba(110,255,238,.42); }',
+    /* —— 用户气泡：极光渐变实底（保持深墨文字，对比度够） —— */
+    '#screen-chat .bubble.solid{',
+    '  background:linear-gradient(135deg,#7de8ff 0%,#c2a4ff 44%,#ffa6dc 100%);',
+    '  box-shadow:0 16px 36px -18px rgba(150,120,255,.62), 0 0 22px -10px rgba(110,255,238,.5); }',
+
     '/* —— 头部 —— */',
     '#screen-chat .chat-head{ flex:none; padding:2px 20px 0; }',
     '#screen-chat .ch-row{ display:flex; align-items:center; gap:12px; padding:2px 0 12px; }',
@@ -76,8 +102,14 @@
     '#screen-chat .note-quote b{ font-weight:600; }',
     '#screen-chat .note-tip{ margin-top:7px; font-size:11px; line-height:1.65; color:var(--p2); letter-spacing:.02em; }',
 
-    '/* —— 输入坞（全沉浸，底栏已由 [data-nav="chat"] 隐藏） —— */',
-    '#screen-chat .inputbar{ flex:none; border-top:1px solid var(--line); background:rgba(11,8,18,.8); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); padding:10px 20px 0; }',
+    '/* —— 输入坞（全沉浸，底栏已由 [data-nav="chat"] 隐藏）—— 极光玻璃 —— */',
+    '#screen-chat .inputbar{ flex:none; border-top:1px solid rgba(170,120,255,.24);',
+    '  background:linear-gradient(180deg, rgba(18,12,30,.52), rgba(11,8,18,.86));',
+    '  backdrop-filter:blur(26px) saturate(1.28); -webkit-backdrop-filter:blur(26px) saturate(1.28);',
+    '  box-shadow:0 -14px 34px -22px rgba(110,255,238,.35); padding:10px 20px 0; }',
+    '#screen-chat .in-pill{ background:linear-gradient(160deg, rgba(40,30,62,.55), rgba(20,14,34,.62)) padding-box,',
+    '  linear-gradient(135deg, rgba(110,255,238,.42), rgba(170,120,255,.38) 55%, rgba(255,120,220,.32)) border-box !important;',
+    '  border-color:transparent !important; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); }',
     '#screen-chat .sugg{ display:flex; gap:8px; margin-bottom:11px; overflow-x:auto; scrollbar-width:none; }',
     '#screen-chat .sugg::-webkit-scrollbar{ display:none; }',
     '#screen-chat .sugg button{ flex:none; font-size:9.5px; letter-spacing:.08em; color:var(--p2); padding:6px 12px; border-radius:999px; border:1px solid var(--line); transition:color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease); }',
