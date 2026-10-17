@@ -16,7 +16,7 @@
   "backup_dir": "voice-refs-backup",
   "work_dir": "work",
   "hf_home": ".hf_cache",
-  "app_html": "app/index.html",
+  "app_html": "app/js/data.js",
   "covers_meta": "",
   "rnnn_model": "",
   "total_personas": 132,

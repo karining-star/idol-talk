@@ -55,6 +55,7 @@ import json
 import os
 import re
 import subprocess
+import sys
 import time
 import uuid
 from datetime import datetime
@@ -282,7 +283,7 @@ class CosyVoiceEngine(TTSEngine):
             return
         if self._sdk_missing:
             print(f"[engine] 阿里云百炼 CosyVoice —— 缺 Python 库：{','.join(self._sdk_missing)}"
-                  f"（D:\\AI\\Python312\\python.exe -m pip install {' '.join(self._sdk_missing)}），"
+                  f"（{sys.executable} -m pip install {' '.join(self._sdk_missing)}），"
                   "装好前引擎按未配置处理", flush=True)
             return
         if dashscope is not None:
@@ -315,7 +316,7 @@ class CosyVoiceEngine(TTSEngine):
             hint = COSYVOICE_UNCONFIGURED
             if self._sdk_missing:
                 hint = (f"CosyVoice 引擎缺依赖库 {','.join(self._sdk_missing)}："
-                        f"请先 D:\\AI\\Python312\\python.exe -m pip install "
+                        f"请先 {sys.executable} -m pip install "
                         f"{' '.join(self._sdk_missing)}")
             raise EngineUnavailableError(hint)
         text = (text or "").strip()

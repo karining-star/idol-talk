@@ -101,19 +101,37 @@ def slug(s):
 
 
 def load_personas():
-    """从 IdolTalk.html 解析全部爱豆（pid + 性别），id 生成规则与应用逐字一致。"""
-    html_text = APP_HTML.read_text(encoding="utf-8")
-    block = html_text.split("const seeds = [", 1)[1].split("];", 1)[0]
-    seeds = re.findall(r"\['([^']*)','([^']*)','([^']*)','([^']*)'\]", block)
-    female_block = html_text.split("const femaleGroups=new Set([", 1)[1].split("]);", 1)[0]
-    female_groups = set(re.findall(r"'([^']*)'", female_block))
+    """读全部爱豆（pid + 性别），支持两种来源，与 crawler/fetch_idol_voices.py 保持一致：
+
+      · 桌面单文件版 IdolTalk.html —— 解析 const seeds = [...] + femaleGroups
+      · 仓库版 app/js/data.js      —— 解析 var IDOLS = [{...}]（字段已齐全）
+    """
+    text = APP_HTML.read_text(encoding="utf-8")
     out = []
-    for group, zh, stage, korean in seeds:
-        pid = f"{slug(group)}-{slug(stage)}"
-        out.append({"pid": pid, "group": group, "zh": zh, "stage": stage, "korean": korean,
-                    "gender": "female" if group in female_groups else "male"})
+
+    if "const seeds = [" in text:
+        block = text.split("const seeds = [", 1)[1].split("];", 1)[0]
+        seeds = re.findall(r"\['([^']*)','([^']*)','([^']*)','([^']*)'\]", block)
+        female_block = text.split("const femaleGroups=new Set([", 1)[1].split("]);", 1)[0]
+        female_groups = set(re.findall(r"'([^']*)'", female_block))
+        for group, zh, stage, korean in seeds:
+            out.append({"pid": f"{slug(group)}-{slug(stage)}", "group": group, "zh": zh,
+                        "stage": stage, "korean": korean,
+                        "gender": "female" if group in female_groups else "male"})
+    else:
+        m = re.search(r"var IDOLS = (\[.*?\n\s*\]);", text, re.S)
+        if not m:
+            raise RuntimeError(
+                f"{APP_HTML} 里既没有『const seeds = [』也没有『var IDOLS = [』；"
+                "请在 tts/config.json 的 app_html 指向你的 IdolTalk.html 或 app/js/data.js")
+        raw = re.sub(r",(\s*\])", r"\1", m.group(1))   # JS 允许尾随逗号，JSON 不允许
+        for o in json.loads(raw):
+            out.append({"pid": o["id"], "group": o["group"], "zh": o["zh"],
+                        "stage": o["stage"], "korean": o.get("korean", ""),
+                        "gender": o["gender"]})
+
     if len(out) != 132:
-        print(f"[warn] IdolTalk.html 解析出 {len(out)} 位（预期 132），应用可能改过", flush=True)
+        print(f"[warn] {APP_HTML.name} 解析出 {len(out)} 位（预期 132），应用可能改过", flush=True)
     return out
 
 
@@ -461,8 +479,9 @@ def cmd_transcribe(args):
         print("没有需要转写的（缺 prompt_text 的都已处理，或素材未入库）。", flush=True)
         return 0
 
-    # 环境要在 import faster_whisper 之前配好：HF 国内镜像 + 模型缓存放 D 盘（C 盘紧张）
+    # 环境要在 import faster_whisper 之前配好：HF 国内镜像 + 模型缓存目录（config 的 hf_home）
     os.environ.setdefault("HF_ENDPOINT", "https://hf-mirror.com")
+    hf_home = None
     try:
         hf_home = paths.dir_of("hf_home")
         os.environ.setdefault("HF_HOME", str(hf_home))
@@ -482,7 +501,7 @@ def cmd_transcribe(args):
     except Exception as e:
         print(f"[warn] av 兼容 shim 未生效：{e}", flush=True)
     print(f"加载 faster-whisper（small / cpu / int8），待转写 {len(targets)} 位…"
-          f"首次运行会从 hf-mirror.com 下载模型（约几百 MB，存 D:\\AI\\hf_cache）", flush=True)
+          f"首次运行会从 hf-mirror.com 下载模型（约几百 MB，存 {hf_home or '默认缓存目录'}）", flush=True)
     from faster_whisper import WhisperModel
     model = WhisperModel("small", device="cpu", compute_type="int8")
 

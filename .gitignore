@@ -16,3 +16,6 @@ app/photos/
 tts/refs/
 *.wav
 *.mp3.bak
+# 爬虫的浏览器登录态（含抖音登录 Cookie，绝不入库）
+crawler/douyin-profile/
+douyin-profile/
