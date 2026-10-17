@@ -16,7 +16,7 @@
          永不缓存（照片保持直读：file:// 本地文件 / http 网络实时）。
    ============================================================ */
 
-const VERSION = '1.0.0';                    // 版本号：部署更新时递增
+const VERSION = '1.0.1';                    // 版本号：部署更新时递增
 const CACHE_NAME = 'idoltalk-shell-' + VERSION;
 const TTS_PORT = '8780';                    // 本机 tts_server 端口，永不缓存
 const SCOPE_PATH = new URL(self.registration.scope).pathname; // 如 /IdolTalk-App/

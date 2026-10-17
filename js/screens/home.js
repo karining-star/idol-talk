@@ -148,6 +148,9 @@
       '#screen-home .mh-rule{ height:1px; background:var(--line); position:relative; }',
       '#screen-home .mh-rule::before{ content:""; position:absolute; left:0; top:0; width:46px; height:1px; background:var(--grad); }',
 
+      /* ---------- 首页透明：舞台光（射灯/光球/星点）在 .phone 层，必须能透出来 ---------- */
+      '#screen-home{ background:transparent; }',
+
       /* ---------- 问候区 ---------- */
       '#screen-home .greet{ padding:12px 22px 0; }',
       '#screen-home .h1{ margin-top:10px; font-family:var(--serif); font-weight:400; font-size:var(--fs-h1); line-height:1.28; letter-spacing:.02em; }',
@@ -199,49 +202,87 @@
       '#screen-home .chips::-webkit-scrollbar{ display:none; }',
 
       /* ---------- 爱豆网格 · 错落双列（全息偶像 Holo Idol：深紫黑 + 镭射描边 + 舞台光） ---------- */
-      '#screen-home .grid{ display:grid; grid-template-columns:1fr 1fr; gap:26px 13px; padding:13px 22px 0; }',
-      /* 镭射描边：border-box 走全息色环（青→紫→粉→蓝→青），padding-box 压深紫黑底 */
-      '#screen-home .card{ position:relative; border-radius:var(--r-md); overflow:hidden; cursor:pointer;',
+      /* 注意 align-items:start —— 错落用的 :nth-child(even){margin-top} 会把行撑高，
+         默认 stretch 会把奇数位卡片一起拉长，底部多出一截空卡面（黑框） */
+      '#screen-home .grid{ display:grid; grid-template-columns:1fr 1fr; align-items:start; gap:26px 13px; padding:13px 22px 0; }',
+      /* 镭射描边：改由独立伪元素承载，这样能单独做「色相流动」而不影响照片 */
+      '#screen-home .card{ position:relative; border-radius:22px; overflow:hidden; cursor:pointer;',
       '  border:1px solid transparent;',
-      '  background:linear-gradient(165deg,#0F0A1A 0%,#08050F 100%) padding-box,',
-      '    conic-gradient(from 210deg at 50% 50%,',
-      '      rgba(110,255,238,.92), rgba(150,120,255,.95) 22%, rgba(255,120,220,.92) 44%,',
-      '      rgba(110,190,255,.9) 66%, rgba(180,255,220,.9) 84%, rgba(110,255,238,.92)) border-box;',
-      '  box-shadow:0 0 0 1px rgba(150,120,255,.08), 0 16px 36px -22px rgba(110,255,238,.42),',
-      '    0 0 26px -10px rgba(170,120,255,.5);',
+      '  background:#160d28;',
+      '  box-shadow:0 16px 36px -22px rgba(110,255,238,.42), 0 0 26px -10px rgba(170,120,255,.5);',
       '  transition:transform var(--t-mid) var(--ease), box-shadow var(--t-mid) var(--ease); }',
+      /* 全息描边层：conic 色环 + 遮罩成细边。平时微亮(.38)，hover 时全亮（设计稿如此） */
+      '#screen-home .card::after{ content:""; position:absolute; inset:0; z-index:6; pointer-events:none;',
+      '  border-radius:inherit; padding:1.5px; opacity:.38; transition:opacity .45s var(--ease);',
+      '  background:conic-gradient(from 200deg, #7ee8fa, #a78bfa, #f0abfc, #fda4af, #7ee8fa);',
+      '  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);',
+      '  -webkit-mask-composite:xor;',
+      '  mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);',
+      '  mask-composite:exclude; }',
+      '#screen-home .card:hover::after, #screen-home .card.flash-on::after{ opacity:1; }',
+      /* 内圈发丝线 */
+      '#screen-home .card .ph::after{ content:""; position:absolute; inset:0; z-index:5; pointer-events:none;',
+      '  border-radius:inherit; box-shadow:inset 0 0 0 1px rgba(255,255,255,.09), inset 0 1px 0 rgba(255,255,255,.16); }',
       '#screen-home .card:nth-child(even){ margin-top:30px; }',
-      /* 舞台光：卡片背后一圈随位置变化的辉光 */
+      /* 舞台光：卡片背后一圈辉光，缓慢呼吸 */
       '#screen-home .card::before{ content:""; position:absolute; inset:-40% -40% auto -40%; height:150%; z-index:0;',
-      '  background:radial-gradient(50% 60% at 50% 0%, rgba(160,130,255,.30), transparent 72%);',
-      '  opacity:.75; pointer-events:none; transition:opacity var(--t-mid) var(--ease); }',
+      '  background:radial-gradient(50% 60% at 50% 0%, rgba(160,130,255,.34), transparent 72%);',
+      '  opacity:.7; pointer-events:none;',
+      '  animation:stage-breathe 6.5s var(--ease-soft) infinite alternate; }',
+      '@keyframes stage-breathe{',
+      '  from{ opacity:.55; transform:translate3d(-3%,0,0) scale(1); }',
+      '  to{ opacity:.95; transform:translate3d(3%,4%,0) scale(1.12); } }',
       '#screen-home .card .ph{ position:relative; z-index:1; aspect-ratio:3/4; overflow:hidden; background:transparent; }',
       '#screen-home .card .ph img{ width:100%; height:100%; object-fit:cover; object-position:var(--pos,50% 20%);',
+      '  filter:saturate(1.06) contrast(1.03);',
       '  transform:scale(var(--zoom,1)) translateZ(0); transform-origin:50% var(--fy,39%);',
       '  transition:transform 1.2s var(--ease-soft); }',
       '#screen-home .card:hover .ph img{ transform:scale(calc(var(--zoom,1) * 1.05)) translateZ(0); }',
-      /* 全息偏光：斜向的青紫扫光，随 hover 平移 */
-      '#screen-home .card .ph::after{ content:""; position:absolute; inset:0; z-index:2; pointer-events:none;',
-      '  background:linear-gradient(118deg, rgba(110,255,238,.16) 0%, rgba(255,255,255,0) 34%,',
-      '    rgba(255,120,220,.14) 62%, rgba(150,120,255,.18) 100%);',
-      '  mix-blend-mode:screen; opacity:.9; transition:transform var(--t-slow, .5s) var(--ease); }',
+      /* （原来的 .ph::after 扫光已移除：与上面的内圈发丝线冲突；
+         「一道光」由点击时的 .flash 承担） */
       '#screen-home .card .veil{ position:absolute; inset:0; z-index:2;',
-      '  background:linear-gradient(180deg, rgba(8,5,15,.30) 0%, rgba(8,5,15,0) 32%, rgba(8,5,15,0) 46%, rgba(8,5,15,.92) 100%); }',
+      '  background:linear-gradient(180deg, rgba(9,5,18,.2) 0%, rgba(9,5,18,.02) 32%, rgba(9,5,18,.62) 68%, rgba(9,5,18,.95) 100%); }',
       '#screen-home .card .no{ position:absolute; top:11px; left:12px; z-index:2;',
       '  font-family:var(--serif); font-style:italic; font-size:11px; letter-spacing:.08em; text-shadow:0 1px 10px rgba(0,0,0,.65); }',
       '#screen-home .card .no.is-pick{ background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent; text-shadow:none; }',
-      '#screen-home .card .meta{ position:absolute; left:13px; right:12px; bottom:11px; z-index:2; }',
-      '#screen-home .card .name{ font-family:var(--serif); font-size:var(--fs-name); letter-spacing:.05em; text-transform:uppercase; text-shadow:0 1px 12px rgba(0,0,0,.5); }',
-      '#screen-home .card .grp{ display:flex; align-items:center; justify-content:space-between; margin-top:4px; }',
-      '#screen-home .card .grp>span{ font-size:8px; font-weight:600; letter-spacing:.2em; color:var(--p2); text-transform:uppercase; }',
-      '#screen-home .card .grp svg{ flex:none; opacity:.55; transform:translateX(-4px); transition:opacity var(--t-fast) var(--ease), transform var(--t-fast) var(--ease); }',
-      '#screen-home .card .grp .on{ display:flex; align-items:center; gap:5px; color:var(--rose); letter-spacing:.18em; }',
+      '#screen-home .card .meta{ position:absolute; left:13px; right:44px; bottom:11px; z-index:2; }',
+      '#screen-home .card .name{ font-family:var(--sans); font-weight:700; font-size:14.5px; letter-spacing:.01em;',
+      '  text-transform:none; text-shadow:0 2px 14px rgba(0,0,0,.6); display:flex; align-items:center; gap:6px; }',
+      '#screen-home .card .name .live{ width:5px; height:5px; border-radius:50%; background:#7ee8fa;',
+      '  box-shadow:0 0 8px #7ee8fa; flex:none; }',
+      /* 圆形玻璃箭头按钮（右下角） */
+      '#screen-home .card .go{ position:absolute; right:10px; bottom:10px; z-index:5; width:32px; height:32px;',
+      '  border-radius:50%; display:grid; place-items:center; color:#fff;',
+      '  background:rgba(255,255,255,.10); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);',
+      '  box-shadow:inset 0 0 0 1px rgba(255,255,255,.16); opacity:.6; transform:translateY(2px);',
+      '  transition:all .35s var(--ease-soft); }',
+      '#screen-home .card:hover .go{ opacity:1; transform:none;',
+      '  background:linear-gradient(135deg,#8b5cf6 0%,#c05ce8 55%,#ec4899 100%);',
+      '  box-shadow:0 8px 22px -6px rgba(192,92,232,.85), inset 0 1px 0 rgba(255,255,255,.4); }',
+      /* ---------- 全息偏光（设计稿 .tint）：soft-light 叠一层镭射色 ---------- */
+      '#screen-home .card .tint{ position:absolute; inset:0; z-index:3; pointer-events:none;',
+      '  mix-blend-mode:soft-light;',
+      '  background:linear-gradient(150deg, rgba(167,139,250,.32), transparent 45%,',
+      '    rgba(126,232,250,.24) 80%, rgba(240,171,252,.3)); }',
+      /* 扫光（设计稿 .sheen）：hover 时一道斜高光扫过 */
+      '#screen-home .card .sheen{ position:absolute; top:-40%; bottom:-40%; left:-70%; width:60%; z-index:3;',
+      '  opacity:0; pointer-events:none; filter:blur(2px);',
+      '  background:linear-gradient(100deg, transparent, rgba(255,255,255,.3), rgba(126,232,250,.42), transparent); }',
+      '#screen-home .card:hover .sheen{ animation:card-sheen .95s cubic-bezier(.3,.6,.3,1) forwards; }',
+      '@keyframes card-sheen{',
+      '  0%{ transform:translateX(0) rotate(8deg); opacity:0; }',
+      '  25%{ opacity:1; }',
+      '  100%{ transform:translateX(400px) rotate(8deg); opacity:0; } }',
+      /* hover 时展开的一句台词（设计稿 .line） */
+      '#screen-home .card .line{ margin-top:0; font-size:10px; color:var(--p2); opacity:0; max-height:0;',
+      '  transform:translateY(6px); overflow:hidden; transition:all .45s var(--ease-soft); }',
+      '#screen-home .card:hover .line{ opacity:.95; max-height:16px; margin-top:7px; transform:none; }',
+      '#screen-home .card .grp{ display:flex; align-items:center; margin-top:4px; }',
+      '#screen-home .card .grp>span{ font-size:9px; font-weight:700; letter-spacing:.22em; color:var(--p2); text-transform:uppercase; opacity:.85; }',
       '#screen-home .card:hover{ transform:translateY(-5px);',
       '  box-shadow:0 0 0 1px rgba(110,255,238,.30), 0 24px 50px -24px rgba(110,255,238,.6),',
       '    0 0 38px -8px rgba(170,120,255,.75); }',
       '#screen-home .card:hover::before{ opacity:1; }',
-      '#screen-home .card:hover .ph::after{ transform:translate3d(14%,-8%,0) scale(1.12); }',
-      '#screen-home .card:hover .grp svg{ opacity:1; transform:translateX(0); }',
       /* 注意：.card:hover .ph img 的规则在上面（要带上 --zoom），这里不要再写一条覆盖它 */
 
       /* ---------- 点卡片时闪过的「一道光」 ---------- */
@@ -493,21 +534,24 @@
       var online = ONLINE_IDS.indexOf(idol.id) > -1;
       var initial = esc((idol.stage || '?').charAt(0).toUpperCase());
       html +=
-        '<article class="card sheen rise" role="button" tabindex="0" data-id="' + esc(idol.id) + '" ' +
+        '<article class="card rise" role="button" tabindex="0" data-id="' + esc(idol.id) + '" ' +
           'style="--i:' + (CARD_BASE + Math.min(i, STAGGER_CAP)) + '" ' +
           'aria-label="与 ' + esc(idol.stage) + ' 开始对话">' +
           '<div class="ph" data-initial="' + initial + '" style="--pos:' + App.photoPos(idol.id) +
             ';--zoom:' + App.photoZoom(idol.id) + ';--fy:' + Math.round(App.photoY(idol.id) * 100) + '%">' +
             '<img data-photo="1" data-src="' + esc(App.photoFor(idol.id)) + '" alt="' + esc(idol.stage) + ', ' + esc(idol.group) + '" loading="lazy">' +
             '<div class="veil"></div>' +
+            '<span class="tint" aria-hidden="true"></span>' +
+            '<span class="sheen" aria-hidden="true"></span>' +
             '<span class="flash" aria-hidden="true"></span>' +
             '<span class="no">' + noStr(i + 1) + '</span>' +
             '<div class="meta">' +
-              '<div class="name">' + esc(idol.stage) + '</div>' +
-              '<div class="grp"><span>' + esc(idol.group) + '</span>' +
-                (online ? '<span class="on"><span class="live" aria-hidden="true"></span>在线</span>' : ARROW) +
-              '</div>' +
+              '<div class="name">' + esc(idol.stage) +
+                (online ? '<span class="live" aria-hidden="true"></span>' : '') + '</div>' +
+              '<div class="grp"><span>' + esc(idol.group) + '</span></div>' +
+              '<div class="line">Let&rsquo;s talk in English</div>' +
             '</div>' +
+            '<span class="go" aria-hidden="true">' + ARROW + '</span>' +
           '</div>' +
         '</article>';
     });
