@@ -44,6 +44,8 @@
   --lilac:   #CBA2F2;
   --violet:  #A78BFA;
   --grad:    linear-gradient(100deg, #F2A0DC 0%, #CBA2F2 52%, #A78BFA 100%);
+  /* 全息镭射渐变（Holo Idol 设计稿）：青→紫→粉→玫瑰→紫→青 */
+  --holo:    linear-gradient(115deg,#7ee8fa 0%,#a78bfa 28%,#f0abfc 52%,#fda4af 72%,#a78bfa 88%,#7ee8fa 100%);
   --grad-2:  linear-gradient(135deg, #F2A0DC, #A78BFA);          /* 实底渐变（按钮/油墨块）*/
   --on-grad: #170D20;                                            /* 渐变上的墨色文字 */
 
@@ -136,7 +138,13 @@ a{ color:inherit; text-decoration:none; }
   position:relative;
   width:390px; height:844px;
   border-radius:46px; overflow:hidden;
-  background:var(--ink);
+  /* 深紫黑舞台底 + 三层舞台光（Holo Idol 设计稿的 .screen-home 底色搬到这里，
+     这样射灯/光球/星点能透过透明的首页显示出来） */
+  background:
+    radial-gradient(120% 62% at 82% -12%, rgba(167,139,250,.26), transparent 58%),
+    radial-gradient(90% 46% at -12% 18%, rgba(126,232,250,.13), transparent 60%),
+    radial-gradient(96% 52% at 50% 112%, rgba(240,171,252,.17), transparent 62%),
+    #07040e;
   border:1px solid rgba(247,242,248,.12);
   box-shadow:
     0 0 0 6px rgba(20,14,28,.9),
@@ -149,6 +157,38 @@ a{ color:inherit; text-decoration:none; }
 @media (min-width:521px) and (max-height:840px){ .phone{ zoom:.84; } }
 
 /* ---------- 氛围：光斑 / 纸纹 / 灵动岛 ---------- */
+/* 舞台光：三束摆动射灯（全息偶像 Holo Idol 的签名元素） */
+.beam{ position:absolute; top:-45%; height:150%; filter:blur(72px); mix-blend-mode:screen; opacity:.42; pointer-events:none; z-index:0; }
+.beam.b1{ left:2%;  width:34%; background:linear-gradient(180deg,rgba(167,139,250,.55),transparent 72%); transform:rotate(16deg);  animation:sway1 26s ease-in-out infinite alternate; }
+.beam.b2{ right:0;  width:30%; background:linear-gradient(180deg,rgba(126,232,250,.42),transparent 72%); transform:rotate(-14deg); animation:sway2 32s ease-in-out infinite alternate; }
+.beam.b3{ left:38%; width:38%; background:linear-gradient(180deg,rgba(240,171,252,.48),transparent 68%); transform:rotate(5deg);   animation:sway3 38s ease-in-out infinite alternate; }
+@keyframes sway1{ to{ transform:rotate(23deg) translateX(5%); opacity:.3; } }
+@keyframes sway2{ to{ transform:rotate(-7deg) translateX(-4%); opacity:.3; } }
+@keyframes sway3{ to{ transform:rotate(12deg) translateX(3%); opacity:.32; } }
+/* 漂浮光球 */
+.orb{ position:absolute; border-radius:50%; filter:blur(60px); opacity:.5; pointer-events:none; z-index:0; }
+.orb.o1{ width:320px; height:320px; left:-80px; top:16%; background:radial-gradient(circle,rgba(167,139,250,.5),transparent 70%); animation:float1 18s ease-in-out infinite alternate; }
+.orb.o2{ width:380px; height:380px; right:-120px; bottom:6%; background:radial-gradient(circle,rgba(240,171,252,.4),transparent 70%); animation:float2 22s ease-in-out infinite alternate; }
+.orb.o3{ width:260px; height:260px; right:24%; top:4%; background:radial-gradient(circle,rgba(126,232,250,.35),transparent 70%); animation:float1 20s ease-in-out infinite alternate-reverse; }
+@keyframes float1{ to{ transform:translate(40px,26px); } }
+@keyframes float2{ to{ transform:translate(-46px,-30px); } }
+/* 星点闪烁 */
+.stars{ position:absolute; inset:0; opacity:.75; pointer-events:none; z-index:0; animation:twinkle 7s ease-in-out infinite alternate;
+  background-image:
+    radial-gradient(1.4px 1.4px at 8% 12%, rgba(255,255,255,.9), transparent 60%),
+    radial-gradient(1px 1px at 22% 32%, rgba(190,215,255,.75), transparent 60%),
+    radial-gradient(1.6px 1.6px at 37% 8%, rgba(255,255,255,.8), transparent 60%),
+    radial-gradient(1px 1px at 52% 24%, rgba(240,171,252,.8), transparent 60%),
+    radial-gradient(1.3px 1.3px at 68% 10%, rgba(255,255,255,.85), transparent 60%),
+    radial-gradient(1px 1px at 82% 30%, rgba(190,215,255,.7), transparent 60%),
+    radial-gradient(1.5px 1.5px at 92% 14%, rgba(255,255,255,.8), transparent 60%),
+    radial-gradient(1px 1px at 14% 58%, rgba(167,139,250,.8), transparent 60%),
+    radial-gradient(1.2px 1.2px at 88% 62%, rgba(255,255,255,.7), transparent 60%),
+    radial-gradient(1px 1px at 44% 78%, rgba(126,232,250,.7), transparent 60%),
+    radial-gradient(1.3px 1.3px at 6% 86%, rgba(255,255,255,.75), transparent 60%),
+    radial-gradient(1px 1px at 72% 88%, rgba(240,171,252,.7), transparent 60%); }
+@keyframes twinkle{ from{ opacity:.45; } to{ opacity:.95; } }
+
 .blob{ position:absolute; border-radius:50%; filter:blur(64px); pointer-events:none; z-index:0; }
 .blob.b1{
   width:300px; height:300px; top:-90px; left:-110px;
@@ -581,4 +621,19 @@ a{ color:inherit; text-decoration:none; }
   .blob, .mic-btn::after, .wave i, .live{ animation:none !important; }
   .rise{ animation:none; }
   .screen.on{ animation:none; }
+}
+
+/* ---------- 全息镭射文字（Holo Idol）：渐变在字上流动 ---------- */
+@keyframes shimmer{ to{ background-position:220% 0; } }
+.holo-text{
+  background:var(--holo); background-size:220% 100%;
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  animation:shimmer 7s linear infinite;
+}
+/* 底部导航选中态的上方镭射短条 */
+.tab.active::after{
+  content:""; position:absolute; top:6px; width:22px; height:3px; border-radius:99px;
+  background:var(--holo); background-size:220% 100%;
+  animation:shimmer 5s linear infinite;
+  box-shadow:0 0 12px rgba(167,139,250,.9);
 }
